@@ -1,5 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { getApps, initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
+
+// import {} from "firebase/database"
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
   authDomain: "falsefriends-2f64b.firebaseapp.com",
@@ -15,3 +19,6 @@ const APP_NAME = "falseFriends";
 export const app =
   getApps().find((app) => app.name === APP_NAME) ??
   initializeApp(firebaseConfig, APP_NAME);
+
+export const firestore = getFirestore(app);
+export const firebaseDatabase = getDatabase(app);
