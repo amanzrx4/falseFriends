@@ -8,4 +8,5 @@ export type User = {
   params: { emailAddress: string };
   uid: string;
   username: string;
+  verified: boolean;
 };
