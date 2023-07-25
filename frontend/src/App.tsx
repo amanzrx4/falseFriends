@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { onValue, ref, serverTimestamp, push } from "firebase/database";
-import { BrowserRouter as Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import { firebaseDatabase } from "./firebase";
 import { Message } from "../../types";
-import Home from "./components/Home";
+import * as React from 'react';
 
 function App() {
   return (
@@ -15,12 +15,26 @@ function App() {
   );
 }
 
+function Home() {
+  return (
+    <div>
+      <Link to='/chat'>
+        <button>Go to Chat</button>
+      </Link>
+    </div>
+  )
+}
+
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesRef = useMemo(() => ref(firebaseDatabase, "messages"), []);
   const dummy = useRef<HTMLElement | null>(null);
   const [formValue, setFormValue] = useState("");
 
+  useEffect(() => {
+    dummy.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+  
   useEffect(() => {
     return onValue(messagesRef, (snapshot) => {
       if (!snapshot.exists()) return;
@@ -31,14 +45,10 @@ function Chat() {
     });
   }, [messagesRef]);
 
-  useEffect(() => {
-    dummy.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   const sendMessage = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    await push(messagesRef, {
+    push(messagesRef, {
       userId: "aman",
       content: formValue,
       createdAt: serverTimestamp(),
