@@ -48,8 +48,6 @@ function Home() {
         .get("https://falsefriends.akshaynarisett1.repl.co/uid")
         .then((response) => {
           const { callbackId, reclaimUrl } = response.data;
-          console.log(callbackId);
-          console.log(reclaimUrl);
           setCallbackId(callbackId);
           setReclaimUrl(reclaimUrl);
         })
@@ -219,14 +217,13 @@ function ChatMessage({ content, userId }: Props) {
 
   const messageClass = userName === userId ? "sent" : "received";
 
-  // console.log("username", userName, "userid", userId);
 
   return (
     <>
       <div className={`message ${messageClass}`}>
         <img
           src={
-            "https://png.pngtree.com/png-clipart/20201224/ourmid/pngtree-funny-cartoon-character-avatar-original-png-image_2618453.jpg"
+            "https://raw.githubusercontent.com/Ashwinvalento/cartoon-avatar/master/lib/images/male/86.png"
           }
         />
         <p>{content}</p>
