@@ -118,9 +118,7 @@ function Home() {
               Open Link
             </a>
           </>
-        ) : (
-          ""
-        )}
+        ) : null}
       </div>
     </div>
   );
