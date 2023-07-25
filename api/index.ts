@@ -1,8 +1,9 @@
-import express from "express";
-import { reclaimprotocol, Proof } from "@reclaimprotocol/reclaim-sdk";
+import express from 'express';
+import { reclaimprotocol } from '@reclaimprotocol/reclaim-sdk'
 import { initializeApp } from "firebase/app";
 import { getFirestore, addDoc, collection } from "firebase/firestore";
-import { User } from "../types";
+
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCsvkMW9tY2QcqEiRVgltN0V86sjuHlddA",
@@ -12,7 +13,7 @@ const firebaseConfig = {
   storageBucket: "falsefriends-2f64b.appspot.com",
   messagingSenderId: "606869841265",
   appId: "1:606869841265:web:940e37bc788c8e82fa42d0",
-  measurementId: "G-PEVSF3P3R0",
+  measurementId: "G-PEVSF3P3R0"
 };
 
 const app = express();
@@ -21,7 +22,7 @@ const FApp = initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(FApp);
-const reclaim = new reclaimprotocol.Reclaim();
+const reclaim = new reclaimprotocol.Reclaim()
 app.use(express.text({ type: "*/*" }));
 
 // Called from frontend on initial load if user is not loggedin
@@ -32,18 +33,19 @@ app.get("/uid", async (req, res) => {
       baseCallbackUrl: "https://falsefriends.akshaynarisett1.repl.co/callback",
       requestedProofs: [
         new reclaim.CustomProvider({
-          provider: "google-login",
-          payload: {},
+          provider: 'google-login',
+          payload: {}
         }),
       ],
     });
     // Store the callback Id and Reclaim URL in your database
     const { callbackId } = request;
-    const url = await request.getReclaimUrl();
-    console.log(callbackId);
+    const url = await request.getReclaimUrl()
+    console.log(callbackId)
     // ... store the callbackId and reclaimUrl in your database
-    res.json({ callbackId, reclaimUrl: url });
-  } catch (error) {
+    res.json({ callbackId, "reclaimUrl": url });
+  }
+  catch (error) {
     console.error("Error requesting proofs:", error);
     res.status(500).json({ error: "Failed to request proofs" });
   }
@@ -51,10 +53,13 @@ app.get("/uid", async (req, res) => {
 
 // Frontend call to check if claim is submitted expects callbackId
 app.get("/verified", async (req, res) => {
+
+
   //implement firebase to check if user is existing or not
 });
 
 app.post("/callback/", async (req, res) => {
+
   let html = `<!DOCTYPE html>
     <html>
     <head>
@@ -110,22 +115,31 @@ app.post("/callback/", async (req, res) => {
   const { id } = req.query;
 
   const { proofs } = JSON.parse(decodeURIComponent(req.body));
-  console.log(proofs);
-  //   const onChainClaimIds = reclaim.getOnChainClaimIdsFromProofs(proofs);
-  const parameters = JSON.parse(proofs[0].parameters) as User["params"];
-  const signature = proofs[0].signatures;
+  console.log(proofs)
+  const onChainClaimIds = reclaim.getOnChainClaimIdsFromProofs(proofs)
+  const parameters = JSON.parse(proofs[0].parameters);
+  const signatures = (proofs[0].signatures)
+  const emailAddress = parameters.emailAddress;
 
-  try {
+   try {
     await addDoc(collection(db, "users"), {
       uid: id,
       params: parameters,
       username: signature,
-    } as User);
-  } catch {
+    });
+  } catch(e) {
+    console.log("error here", e)
     res.status(400).json({ error: "Firebase error" });
     return;
   }
 
+
+
+  //store the following on firebase
+  // console.log("callbackid", id)
+  // console.log("emailAddress", emailAddress)
+  // console.log("userName", signatures[0])
+    
   /* Wont be able to run until testflight app works */
   //   const isProofsCorrect = await reclaim.verifyCorrectnessOfProofs(id, proofs);
   //   console.log(isProofsCorrect)
@@ -138,8 +152,11 @@ app.post("/callback/", async (req, res) => {
   //     res.status(400).json({ error: "Proofs verification failed" });
   //   }
 
-  res.send(html);
+  res.send(html)
 });
+
+
+
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);

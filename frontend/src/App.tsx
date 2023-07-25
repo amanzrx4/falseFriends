@@ -1,14 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { onValue, ref, serverTimestamp, push } from "firebase/database";
+import { BrowserRouter as  Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import { firebaseDatabase } from "./firebase";
 import { Message } from "../../types";
 
 function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/chat" element={<Chat />} />
+    </Routes>
+  );
+}
+
+function Home() {
+  return (
+    <div>
+      <Link to='/chat'>
+        <button>Go to Chat</button>
+      </Link>
+    </div>
+  )
+}
+
+function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesRef = useMemo(() => ref(firebaseDatabase, "messages"), []);
+  const dummy = useRef<HTMLElement | null>(null);
+  const [formValue, setFormValue] = useState("");
 
   useEffect(() => {
+    
     return onValue(messagesRef, (snapshot) => {
       if (!snapshot.exists()) return;
       const data = Object.values(snapshot.val()) as Message[];
@@ -18,44 +41,15 @@ function App() {
     });
   }, [messagesRef]);
 
-  // const [count, setCount] = useState(0);
 
-  // return (
-  //   <>
-  //     <div>
-  //       <a href="https://vitejs.dev" target="_blank">
-  //         <img src={viteLogo} className="logo" alt="Vite logo" />
-  //       </a>
-  //       <a href="https://react.dev" target="_blank">
-  //         <img src={reactLogo} className="logo react" alt="React logo" />
-  //       </a>
-  //     </div>
-  //     <h1>Vite + React</h1>
-  //     <div className="card">
-  //       <button onClick={() => setCount((count) => count + 1)}>
-  //         count is {count}
-  //       </button>
-  //       <p>
-  //         Edit <code>src/App.tsx</code> and save to test HMR
-  //       </p>
-  //     </div>
-  //     <p className="read-the-docs">
-  //       Click on the Vite and React logos to learn more
-  //     </p>
-  //   </>
-  // )
-  const dummy = useRef<HTMLElement | null>(null);
-  // const messagesRef = firestore.collection('messages');
-  // const query = messagesRef.orderBy("createdAt").limit(25);
-
-  // const [messages] = useCollectionData(query, { idField: 'id' });
-
-  const [formValue, setFormValue] = useState("");
+  useEffect(() => {
+    dummy.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const sendMessage = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    push(messagesRef, {
+    await push(messagesRef, {
       userId: "aman",
       content: formValue,
       createdAt: serverTimestamp(),
@@ -63,7 +57,7 @@ function App() {
 
     setFormValue("");
     dummy.current?.scrollIntoView({ behavior: "smooth" });
-  };
+};
 
   return (
     <>
@@ -86,11 +80,13 @@ function App() {
           send
         </button>
       </form>
+      <Link to="/">Go back home</Link>
     </>
   );
 }
 
 type Props = Message;
+
 function ChatMessage({ content }: Props) {
   const messageClass = "received";
 
