@@ -158,6 +158,7 @@ function Chat() {
     if (docSnap.length === 0) {
       localStorage.clear();
       navi("/");
+      return;
     }
 
     const user = docSnap[0].data();
