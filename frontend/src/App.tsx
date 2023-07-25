@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { onValue, ref, serverTimestamp, push } from "firebase/database";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import "./App.css";
-import { firebaseDatabase } from "./firebase";
+import { firebaseDatabase, firestore } from "./firebase";
 import { Message } from "../../types";
-import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import QRCode from 'qrcode.react';
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import QRCode from "qrcode.react";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 function App() {
   return (
@@ -20,108 +21,119 @@ function App() {
 
 function Home() {
   const navigate = useNavigate();
-  const [callbackId, setCallbackId] = useState('');
-  const [reclaimUrl, setReclaimUrl] = useState('');
+  const [callbackId, setCallbackId] = useState("");
+  const [reclaimUrl, setReclaimUrl] = useState("");
 
   useEffect(() => {
-
     // Check if userName exists in localStorage
-    const userName = localStorage.getItem('userName');
+    const userName = localStorage.getItem("userName");
     if (userName) {
-      navigate('/chat');
-
-  } else {
-    // Fetch the callbackId and reclaimUrl on initial render
-    axios.get('https://falsefriends.akshaynarisett1.repl.co/uid')
-      .then(response => {
-        const { callbackId, reclaimUrl } = response.data;
-        console.log(callbackId)
-        console.log(reclaimUrl)
-        setCallbackId(callbackId);
-        setReclaimUrl(reclaimUrl);
-      })
-      .catch(err => console.error(err));
+      navigate("/chat");
+    } else {
+      // Fetch the callbackId and reclaimUrl on initial render
+      axios
+        .get("https://falsefriends.akshaynarisett1.repl.co/uid")
+        .then((response) => {
+          const { callbackId, reclaimUrl } = response.data;
+          console.log(callbackId);
+          console.log(reclaimUrl);
+          setCallbackId(callbackId);
+          setReclaimUrl(reclaimUrl);
+        })
+        .catch((err) => console.error(err));
     }
-
-  }, []); 
+  }, []);
 
   useEffect(() => {
     // Start polling to the verification API
-    if (callbackId !== '') {
+    if (callbackId !== "") {
       const interval = setInterval(() => {
-        axios.get(`https://falsefriends.akshaynarisett1.repl.co/verified?callbackId=${callbackId}`)
-          .then(response => {
+        axios
+          .get(
+            `https://falsefriends.akshaynarisett1.repl.co/verified?callbackId=${callbackId}`
+          )
+          .then((response) => {
             const { registered, userName } = response.data;
 
-            if (registered === 'true') {
-              localStorage.setItem('userName', userName); 
+            if (registered === "true") {
+              localStorage.setItem("userName", userName);
               clearInterval(interval);
-              navigate('/chat');
+              navigate("/chat");
             }
           })
-          .catch(err => console.error(err));
-      }, 2000); 
+          .catch((err) => console.error(err));
+      }, 2000);
 
       return () => clearInterval(interval); // Cleanup
     }
   }, [callbackId, navigate]);
 
   return (
-<div style={{
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: '100vh',
-}}>
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    border: '2px solid #ddd',
-    borderRadius: '5px',
-    padding: '30px',
-    boxShadow: '0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23)',
-    maxWidth: '300px',
-    background: 'linear-gradient(to right, #ff9966, #ff5e62)',
-    color: 'white',
-  }}>
-    <h1>False Friends</h1>
-    {
-      reclaimUrl ? 
-      <>
-        <QRCode value={reclaimUrl} style={{ marginBottom: '20px', marginTop: '20px' }} />
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          border: "2px solid #ddd",
+          borderRadius: "5px",
+          padding: "30px",
+          boxShadow:
+            "0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23)",
+          maxWidth: "300px",
+          background: "linear-gradient(to right, #ff9966, #ff5e62)",
+          color: "white",
+        }}
+      >
+        <h1>False Friends</h1>
+        {reclaimUrl ? (
+          <>
+            <QRCode
+              value={reclaimUrl}
+              style={{ marginBottom: "20px", marginTop: "20px" }}
+            />
 
-        <a
-          href={reclaimUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            padding: '10px 20px',
-            backgroundColor: 'white',
-            color: '#ff5e62',
-            borderRadius: '5px',
-            textDecoration: 'none',
-            marginTop: '20px',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-          }}
-        >
-          Open Link
-        </a>
-      </> : ""
-    }
-  </div>
-</div>
-  )
+            <a
+              href={reclaimUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "white",
+                color: "#ff5e62",
+                borderRadius: "5px",
+                textDecoration: "none",
+                marginTop: "20px",
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.15)",
+              }}
+            >
+              Open Link
+            </a>
+          </>
+        ) : (
+          ""
+        )}
+      </div>
+    </div>
+  );
 }
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesRef = useMemo(() => ref(firebaseDatabase, "messages"), []);
   const dummy = useRef<HTMLElement | null>(null);
   const [formValue, setFormValue] = useState("");
+  const navi = useNavigate();
 
   useEffect(() => {
-    dummy.current?.scrollIntoView({ behavior: 'smooth' });
+    dummy.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
@@ -136,9 +148,24 @@ function Chat() {
 
   const sendMessage = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+    const userName = localStorage.getItem("userName");
+
+    const q = query(
+      collection(firestore, "users"),
+      where("userName", "==", userName)
+    );
+
+    const docSnap = (await getDocs(q)).docs;
+
+    if (docSnap.length === 0) {
+      localStorage.clear();
+      navi("/");
+    }
+
+    const user = docSnap[0].data();
 
     push(messagesRef, {
-      userId: "aman",
+      userId: user.userName,
       content: formValue,
       createdAt: serverTimestamp(),
     } as Message);
@@ -175,8 +202,10 @@ function Chat() {
 
 type Props = Message;
 
-function ChatMessage({ content }: Props) {
-  const messageClass = "received";
+function ChatMessage({ content, userId }: Props) {
+  const userName = localStorage.getItem("callbackId");
+
+  const messageClass = userName === userId ? "sent" : "received";
 
   return (
     <>
