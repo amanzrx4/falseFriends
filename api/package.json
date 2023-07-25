@@ -1,0 +1,16 @@
+{
+  "name": "false-friends-api",
+  "version": "1.0.0",
+  "description": "false friends api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@reclaimprotocol/reclaim-sdk": "^4.4.2",
+    "express": "^4.18.2",
+    "firebase": "^10.1.0"
+  }
+}

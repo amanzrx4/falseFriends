@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { onValue, ref, serverTimestamp, push, set } from "firebase/database";
+import { onValue, ref, serverTimestamp, push } from "firebase/database";
 import "./App.css";
 import { firebaseDatabase } from "./firebase";
-import { Message } from "./types";
+import { Message } from "../../types";
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -11,8 +11,6 @@ function App() {
   useEffect(() => {
     return onValue(messagesRef, (snapshot) => {
       if (!snapshot.exists()) return;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const data = Object.values(snapshot.val()) as Message[];
       if (data) {
         setMessages(data);
@@ -57,9 +55,7 @@ function App() {
   const sendMessage = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    const newMessageRef = push(messagesRef);
-
-    await set(newMessageRef, {
+    push(messagesRef, {
       userId: "aman",
       content: formValue,
       createdAt: serverTimestamp(),
