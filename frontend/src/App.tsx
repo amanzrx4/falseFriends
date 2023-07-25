@@ -3,12 +3,25 @@ import { onValue, ref, serverTimestamp, push } from "firebase/database";
 import { Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import { firebaseDatabase, firestore } from "./firebase";
-import { Message } from "../../types";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import QRCode from "qrcode.react";
 import { collection, getDocs, query, where } from "firebase/firestore";
+
+export type Message = {
+  content: string;
+  createdAt: unknown;
+  userId: string;
+};
+
+export type User = {
+  params: { emailAddress: string };
+  uid: string;
+  username: string;
+  verified: boolean;
+};
+
 
 function App() {
   return (
