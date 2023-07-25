@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { onValue, ref, serverTimestamp, push } from "firebase/database";
-import { BrowserRouter as  Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import { firebaseDatabase } from "./firebase";
 import { Message } from "../../types";
+import Home from "./components/Home";
 
 function App() {
   return (
@@ -14,16 +15,6 @@ function App() {
   );
 }
 
-function Home() {
-  return (
-    <div>
-      <Link to='/chat'>
-        <button>Go to Chat</button>
-      </Link>
-    </div>
-  )
-}
-
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesRef = useMemo(() => ref(firebaseDatabase, "messages"), []);
@@ -31,7 +22,6 @@ function Chat() {
   const [formValue, setFormValue] = useState("");
 
   useEffect(() => {
-    
     return onValue(messagesRef, (snapshot) => {
       if (!snapshot.exists()) return;
       const data = Object.values(snapshot.val()) as Message[];
@@ -41,9 +31,8 @@ function Chat() {
     });
   }, [messagesRef]);
 
-
   useEffect(() => {
-    dummy.current?.scrollIntoView({ behavior: 'smooth' });
+    dummy.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = async (e: React.SyntheticEvent) => {
@@ -57,7 +46,7 @@ function Chat() {
 
     setFormValue("");
     dummy.current?.scrollIntoView({ behavior: "smooth" });
-};
+  };
 
   return (
     <>
