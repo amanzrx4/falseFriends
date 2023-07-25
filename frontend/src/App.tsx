@@ -202,9 +202,11 @@ function Chat() {
 type Props = Message;
 
 function ChatMessage({ content, userId }: Props) {
-  const userName = localStorage.getItem("callbackId");
+  const userName = localStorage.getItem("userName");
 
   const messageClass = userName === userId ? "sent" : "received";
+
+  // console.log("username", userName, "userid", userId);
 
   return (
     <>
