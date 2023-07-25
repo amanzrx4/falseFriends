@@ -48,8 +48,6 @@ function Home() {
         .get("https://falsefriends.akshaynarisett1.repl.co/uid")
         .then((response) => {
           const { callbackId, reclaimUrl } = response.data;
-          console.log(callbackId);
-          console.log(reclaimUrl);
           setCallbackId(callbackId);
           setReclaimUrl(reclaimUrl);
         })
@@ -219,7 +217,6 @@ function ChatMessage({ content, userId }: Props) {
 
   const messageClass = userName === userId ? "sent" : "received";
 
-  // console.log("username", userName, "userid", userId);
 
   return (
     <>
